@@ -1,0 +1,11 @@
+Trabalho de sistemas operacionais.
+Descrição do proposto no arquivo: descricao-projeto-SO.pdf
+
+-> Laurivan Sareta
+
+clone do repositório do XV6:
+	-> https://github.com/mit-pdos/xv6-public
+Clonado em:
+	-> 12/09/2015
+
+
