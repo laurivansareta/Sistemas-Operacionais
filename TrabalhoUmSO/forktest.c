@@ -22,6 +22,7 @@ forktest(void)
 
   for(n=0; n<N; n++){
     pid = fork();
+    printf(1,"criando");
     if(pid < 0)
       break;
     if(pid == 0)
@@ -45,7 +46,7 @@ forktest(void)
     exit();
   }
   
-  printf(1, "fork test OK\n");
+  printf(1, "fork test laurivan OK\n");
 }
 
 int

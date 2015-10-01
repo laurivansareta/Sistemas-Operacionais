@@ -7,6 +7,8 @@
 #include "proc.h"
 #include "spinlock.h"
 
+
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -297,11 +299,12 @@ scheduler(void)
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state.
+//Troca de contexto de processo que esta na cpu
 void
 sched(void)
 {
   int intena;
-
+	//cprintf("\nsched nr:%d, %s", proc->pid, proc->name); //apagar
   if(!holding(&ptable.lock))
     panic("sched ptable.lock");
   if(cpu->ncli != 1)
@@ -319,10 +322,14 @@ sched(void)
 void
 yield(void)
 {
+  cprintf("\nyield antes nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
+ 
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
+  cprintf("\nrunssssss nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
   sched();
   release(&ptable.lock);
+  cprintf("\nyield depois nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
 }
 
 // A fork child's very first scheduling by scheduler()
