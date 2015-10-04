@@ -11,6 +11,7 @@
 
 struct {
   struct spinlock lock;
+  struct proc procBloq[NPROC];
   struct proc proc[NPROC];
 } ptable;
 
@@ -322,14 +323,15 @@ sched(void)
 void
 yield(void)
 {
-  cprintf("\nyield antes nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
+  //cprintf("\nyield antes nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
  
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
-  cprintf("\nrunssssss nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
+  //Colocar este processo no final da fila dos processos prontos.
+  //cprintf("\nrunssssss nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
   sched();
   release(&ptable.lock);
-  cprintf("\nyield depois nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
+  //cprintf("\nyield depois nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
 }
 
 // A fork child's very first scheduling by scheduler()
@@ -378,6 +380,7 @@ sleep(void *chan, struct spinlock *lk)
   // Go to sleep.
   proc->chan = chan;
   proc->state = SLEEPING;
+  //Tirar este da primeira posição de pronto e colocar na ultima posição dos bloqueados e reorganizar o vetor.
   sched();
 
   // Tidy up.
@@ -397,10 +400,13 @@ static void
 wakeup1(void *chan)
 {
   struct proc *p;
-
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    if(p->state == SLEEPING && p->chan == chan)
+  cprintf("\nwakeup1 inicio nr:"); //apagar	
+  for(p = ptable.procBloq; p < &ptable.procBloq[NPROC]; p++)
+    if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
+      //colocar este processo para a ultima posição do vetor de prontos.
+    }
+   cprintf("\nwakeup1 fim nr:"); //apagar
 }
 
 // Wake up all processes sleeping on chan.
@@ -419,10 +425,19 @@ int
 kill(int pid)
 {
   struct proc *p;
-
+cprintf("\nkill desbloqueado nr:"); //apagar	
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid == pid){
+	  //cprintf("\nkill desbloqueado nr:%d, %s, %d", p->pid, p->name, p->state); //apagar	
+      p->killed = 1;
+      release(&ptable.lock);
+      return 0;
+    }
+  }
+  for(p = ptable.procBloq; p < &ptable.procBloq[NPROC]; p++){
+    if(p->pid == pid){
+		//cprintf("\nkill bloqueado nr:%d, %s, %d", p->pid, p->name, p->state); //apagar	
       p->killed = 1;
       // Wake process from sleep if necessary.
       if(p->state == SLEEPING)
