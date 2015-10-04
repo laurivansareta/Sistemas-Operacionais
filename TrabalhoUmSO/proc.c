@@ -39,8 +39,10 @@ allocproc(void)
 {
   struct proc *p;
   char *sp;
-
+  int a=0;
   acquire(&ptable.lock);
+  for(p = ptable.proc; a < NPROC; p++, a++)
+	cprintf("\n allocproc nr:%d, %s, %d", p->pid, p->name, p->state); //apagar
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == UNUSED)
       goto found;
@@ -400,13 +402,15 @@ static void
 wakeup1(void *chan)
 {
   struct proc *p;
-  cprintf("\nwakeup1 inicio nr:"); //apagar	
-  for(p = ptable.procBloq; p < &ptable.procBloq[NPROC]; p++)
+  //cprintf("\nwakeup1 inicio nr:"); //apagar	
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
       //colocar este processo para a ultima posição do vetor de prontos.
     }
-   cprintf("\nwakeup1 fim nr:"); //apagar
+  }
+
+   //cprintf("\nwakeup1 fim nr:"); //apagar
 }
 
 // Wake up all processes sleeping on chan.
@@ -435,6 +439,7 @@ cprintf("\nkill desbloqueado nr:"); //apagar
       return 0;
     }
   }
+  /*
   for(p = ptable.procBloq; p < &ptable.procBloq[NPROC]; p++){
     if(p->pid == pid){
 		//cprintf("\nkill bloqueado nr:%d, %s, %d", p->pid, p->name, p->state); //apagar	
@@ -446,6 +451,7 @@ cprintf("\nkill desbloqueado nr:"); //apagar
       return 0;
     }
   }
+  */
   release(&ptable.lock);
   return -1;
 }
