@@ -29,6 +29,68 @@ pinit(void)
   initlock(&ptable.lock, "ptable");
 }
 
+void teste(int vl){
+	if (vl == 1)
+		cprintf("\n ----------->UM<--------------\n");
+	if (vl == 2)
+		cprintf("\n ----------->DOIS<--------------\n");
+	if (vl == 3)
+		cprintf("\n ----------->TRES<--------------\n");
+	if (vl == 4)
+		cprintf("\n ----------->QUATRO<--------------\n");
+	if (vl == 5)
+		cprintf("\n ----------->CINCO<--------------\n");		
+	
+}
+void swapProc(int state, struct proc *processo ){
+//void swapProc(int state){
+	
+	if (state == UNUSED){
+		cprintf("\n ----------->UNUSED<--------------");
+		cprintf(" swapProc nr:%d, %s, %d", processo->pid, processo->name, processo->state); //apagar
+	}
+	if (state == EMBRYO){
+		cprintf("\n ----------->EMBRYO<--------------");
+		cprintf(" swapProc nr:%d, %s, %d", processo->pid, processo->name, processo->state); //apagar
+	}
+	if (state == SLEEPING){
+		cprintf("\n ----------->SLEEPING<--------------");
+		cprintf(" swapProc nr:%d, %s, %d", processo->pid, processo->name, processo->state); //apagar
+	}
+	if (state == RUNNABLE){
+		cprintf("\n ----------->RUNNABLE<--------------");
+		cprintf(" swapProc nr:%d, %s, %d", processo->pid, processo->name, processo->state); //apagar
+	}
+	if (state == RUNNING){
+		cprintf("\n ----------->RUNNING<--------------");
+		cprintf(" swapProc nr:%d, %s, %d", processo->pid, processo->name, processo->state); //apagar
+	}
+	if (state == ZOMBIE){
+		cprintf("\n ----------->ZOMBIE<--------------");
+		cprintf(" swapProc nr:%d, %s, %d", processo->pid, processo->name, processo->state); //apagar
+	}
+		
+	//struct proc *p;
+	//acquire(&ptable.lock);
+	if (state == 0){
+		//for(p = ptable.proc; a < NPROC; p++, a++){
+			//cprintf("\n allocproc nr:%d, %s, %d", p->pid, p->name, p->state); //apagar
+	}
+	if (state == 1){
+		//for(p = ptable.proc; a < NPROC; p++, a++){
+			//cprintf("\n allocproc nr:%d, %s, %d", p->pid, p->name, p->state); //apagar
+	}
+	//cprintf("\n allocproc nome bloqueio: %s", ptable.lock.name); //apagar
+	
+	//release(&ptable.lock);
+
+  //for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    //if(p->state == UNUSED)
+      //goto found;
+  //release(&ptable.lock);
+	
+} 
+
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
 // If found, change state to EMBRYO and initialize
@@ -38,11 +100,15 @@ static struct proc*
 allocproc(void)
 {
   struct proc *p;
-  char *sp;
+  char *sp;	
   int a=0;
   acquire(&ptable.lock);
-  for(p = ptable.proc; a < NPROC; p++, a++)
+  //cprintf("\n allocproc nome bloqueio: %s", ptable.lock.name); //apagar
+  for(p = ptable.proc; a < NPROC; p++, a++){
 	cprintf("\n allocproc nr:%d, %s, %d", p->pid, p->name, p->state); //apagar
+	//if (p->pid == 10)
+		//sleep(proc, &ptable.lock); 
+}
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == UNUSED)
       goto found;
@@ -329,6 +395,8 @@ yield(void)
  
   acquire(&ptable.lock);  //DOC: yieldlock
   proc->state = RUNNABLE;
+  //teste(4);//apagar
+  swapProc(RUNNABLE, proc);
   //Colocar este processo no final da fila dos processos prontos.
   //cprintf("\nrunssssss nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
   sched();
@@ -382,6 +450,9 @@ sleep(void *chan, struct spinlock *lk)
   // Go to sleep.
   proc->chan = chan;
   proc->state = SLEEPING;
+	cprintf("\n sleep nr:%d, %s, %d", proc->pid, proc->name, proc->state); //apagar
+	//teste(2);//apagar
+	swapProc(SLEEPING, proc);
   //Tirar este da primeira posição de pronto e colocar na ultima posição dos bloqueados e reorganizar o vetor.
   sched();
 
@@ -406,6 +477,8 @@ wakeup1(void *chan)
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
+      //teste(3);//apagar
+      swapProc(RUNNABLE, p);
       //colocar este processo para a ultima posição do vetor de prontos.
     }
   }
